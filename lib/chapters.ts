@@ -19,14 +19,39 @@ export const CHAPTERS: Chapter[] = [
   { num: '06', label: 'FUTURE',     title: 'Built for\nwhat comes next.',               body: 'XGROVA proves circular technology is not a compromise — it is the future of responsible, accessible computing. Give technology another life.',                                                    start: 0.82, end: 1.00 },
 ]
 
-export const ENG_LABELS = [
-  { text: 'DISPLAY',      dotX: 35, dotY: 27, textX: 20, textY: 18 },
-  { text: 'THERMAL SYS', dotX: 65, dotY: 30, textX: 76, textY: 21 },
-  { text: 'MOTHERBOARD', dotX: 37, dotY: 50, textX: 18, textY: 48 },
-  { text: 'MEMORY',      dotX: 63, dotY: 50, textX: 78, textY: 44 },
-  { text: 'BATTERY',     dotX: 37, dotY: 66, textX: 20, textY: 72 },
-  { text: 'FRAME',       dotX: 62, dotY: 67, textX: 78, textY: 70 },
-  { text: 'KEYBOARD',    dotX: 50, dotY: 74, textX: 50, textY: 83 },
+/**
+ * Hardware annotations — anchored to the actual exploded components in the
+ * source frames (1924×1076). Coordinates are normalized to the source frame,
+ * then mapped to the *rendered* image bounds (contain-fit), so labels follow
+ * the product on resize/DPR instead of floating at viewport percentages.
+ *
+ * Measured exploded-laptop bands (settled view, frames ~95–100):
+ *   DISPLAY      top lid strip      y 164–187   x 379–1548
+ *   KEYBOARD     key rows           y 373–421   x 461–1463
+ *   MOTHERBOARD  main PCB block     y 423–672   x 381–1543
+ *   MEMORY       RAM stick strip    y 494–590   x 1368–1535 (right edge of PCB)
+ *   THERMAL SYS  copper pipe band   y 600–672   (warm tint confirmed)
+ *   BATTERY      dark pack band     y 674–805
+ *   FRAME        bottom chassis     y 813–968
+ */
+export interface HardwareAnnotation {
+  text: string
+  /** dot position on the product — normalized to the source frame (0–1) */
+  anchorX: number
+  anchorY: number
+  /** label position — normalized to the source frame (may exceed 0–1) */
+  labelX: number
+  labelY: number
+}
+
+export const ENG_LABELS: HardwareAnnotation[] = [
+  { text: 'DISPLAY',      anchorX: 0.50,  anchorY: 0.163, labelX: 1.04, labelY: 0.12  },
+  { text: 'KEYBOARD',     anchorX: 0.50,  anchorY: 0.369, labelX: 1.04, labelY: 0.28  },
+  { text: 'MOTHERBOARD',  anchorX: 0.50,  anchorY: 0.476, labelX: 1.04, labelY: 0.44  },
+  { text: 'MEMORY',       anchorX: 0.754, anchorY: 0.504, labelX: 1.04, labelY: 0.52  },
+  { text: 'THERMAL SYS',  anchorX: 0.50,  anchorY: 0.591, labelX: 1.04, labelY: 0.60  },
+  { text: 'BATTERY',      anchorX: 0.50,  anchorY: 0.688, labelX: 1.04, labelY: 0.70  },
+  { text: 'FRAME',        anchorX: 0.50,  anchorY: 0.827, labelX: 1.04, labelY: 0.84  },
 ]
 
 export function chapterAt(progress: number): number {

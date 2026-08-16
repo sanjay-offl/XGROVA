@@ -4,12 +4,12 @@ import { useScrollState } from '@/lib/scrollStore'
 import { CHAPTERS } from '@/lib/chapters'
 
 export default function ProgressBar() {
-  const { progress, chapter } = useScrollState()
-  const pct = Math.round(progress * 100)
+  const { progress, chapter, storyActive } = useScrollState()
+  const pct = (progress * 100).toFixed(1)
   const ch = CHAPTERS[chapter]
 
   return (
-    <div className="xg-progress-hud" aria-hidden="true">
+    <div className={`xg-progress-hud${storyActive ? '' : ' xg-hud-hidden'}`} aria-hidden="true">
       <div className="xg-progress-track">
         <div className="xg-progress-fill" style={{ width: `${pct}%` }} />
       </div>

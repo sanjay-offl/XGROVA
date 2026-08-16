@@ -305,6 +305,20 @@ body {
   align-items: stretch;
 }
 
+/* Cinematic blocks inside the rail — fade out below the pinned section */
+.xg-rail-cinematic {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
+}
+.xg-rail-cinematic.xg-hud-hidden {
+  opacity: 0;
+  transform: translateX(-16px);
+  pointer-events: none;
+}
+
 .xg-rail-logo {
   display: flex;
   flex-direction: column;
@@ -443,6 +457,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
+}
+.xg-timeline.xg-hud-hidden {
+  opacity: 0;
+  transform: translateY(-50%) translateX(16px);
+  pointer-events: none;
 }
 .xg-timeline-item {
   display: flex;
@@ -517,6 +537,11 @@ body {
   height: 48px;
   z-index: 130;
   pointer-events: none;
+  transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
+}
+.xg-progress-hud.xg-hud-hidden {
+  opacity: 0;
+  transform: translateY(16px);
 }
 .xg-progress-track {
   position: absolute;
@@ -679,22 +704,29 @@ body {
    TARGET MARKET ROWS
 ═══════════════════════════════════════════════════════════════════ */
 
+/* Strict 1180px centered container for the target-market block */
+.xg-market-wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(24px, 4vw, 64px);
+}
+
 .xg-market-row {
   display: grid;
-  grid-template-columns: 64px minmax(220px, 320px) 1fr 44px;
+  grid-template-columns: 80px minmax(240px, 1fr) minmax(300px, 1.5fr) 50px;
   align-items: center;
-  gap: 24px;
-  padding: 40px 16px;
+  gap: 32px;
+  padding: 40px 0;
   border-bottom: 1px solid var(--xg-border);
   text-decoration: none;
   border-left: 2px solid transparent;
-  transition: border-color 300ms var(--ease-out), background 300ms var(--ease-out), padding-left 300ms var(--ease-out);
+  transition: border-color 300ms var(--ease-out), background 300ms var(--ease-out);
 }
 .xg-market-row:first-child { border-top: 1px solid var(--xg-border); }
 .xg-market-row:hover {
   border-left-color: var(--xg-green);
   background: var(--xg-green-soft);
-  padding-left: 24px;
 }
 .xg-market-num {
   font-family: var(--font-mono), monospace;
@@ -718,6 +750,7 @@ body {
 .xg-market-arrow {
   font-family: var(--font-mono), monospace;
   font-size: 16px;
+  justify-self: end;
   color: var(--xg-very-muted);
   transition: color 300ms var(--ease-out), transform 300ms var(--ease-out);
 }
@@ -1145,6 +1178,15 @@ body {
   color: var(--xg-grey);
 }
 
+/* ─── Accessible focus rings ─── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--xg-green);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    RESPONSIVE — TABLET
 ═══════════════════════════════════════════════════════════════════ */
@@ -1161,6 +1203,12 @@ body {
   .xg-module { grid-template-columns: 96px 1fr 1fr; gap: 32px; }
   .xg-deliverables { grid-template-columns: repeat(3, 1fr); }
   .xg-quarters { grid-template-columns: repeat(2, 1fr); }
+
+  /* strict market grid relaxes on tablet to avoid overflow */
+  .xg-market-row {
+    grid-template-columns: 64px minmax(180px, 1fr) minmax(220px, 1.5fr) 40px;
+    gap: 20px;
+  }
 }
 
 /* ─── Footer ─── */
@@ -1237,9 +1285,13 @@ body {
 
   .xg-market-row {
     grid-template-columns: 40px 1fr 28px;
-    padding: 32px 8px;
+    gap: 16px;
+    padding: 28px 0;
   }
   .xg-market-body { display: none; }
+
+  /* hardware annotations are a desktop cinematic layer */
+  .xg-annotations { display: none; }
 
   .xg-module {
     grid-template-columns: 56px 1fr;

@@ -31,6 +31,17 @@ function getRegion() {
 // bounds so it follows contain-fit scaling, DPR, and resize automatically.
 // ─────────────────────────────────────────────────────────────────────────────
 const KINGAI_MASK = { x: 0.872, y: 0.921, w: 0.117, h: 0.062 }
+const FRAME_IR    = 1924 / 1076   // source frame aspect ratio
+
+/** Contain-fit bounds shared by the canvas draw, the KingAI mask, and the
+ *  hardware annotations — everything stays locked to the product. */
+function getImageBounds() {
+  const { x, cy, w, h } = getRegion()
+  const fit = Math.min(w / (FRAME_IR * h), 1) * 0.94
+  const dh  = h * fit
+  const dw  = dh * FRAME_IR
+  return { dx: x + (w - dw) / 2, dy: cy - dh / 2, dw, dh }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Component
@@ -50,6 +61,8 @@ export default function CinematicCanvas() {
   const [chapIdx,     setChapIdx]     = useState(0)
   const [scrollProg,  setScrollProg]  = useState(0)
   const [showLabels,  setShowLabels]  = useState(false)
+  const [imgBounds,   setImgBounds]   = useState<{ dx: number; dy: number; dw: number; dh: number } | null>(null)
+  const boundsKeyRef  = useRef('')
 
   // ── Canvas helpers ─────────────────────────────────────────────────────────
   function sizeCanvas() {
@@ -112,24 +125,22 @@ export default function CinematicCanvas() {
       return
     }
 
-    const { x, cy, w, h } = getRegion()
-
-    // contain-fit the frame inside the product region with breathing room
-    const ir = img.naturalWidth / img.naturalHeight
-    const fit = Math.min(w / (ir * h), 1) * 0.94
-    const dh  = h * fit
-    const dw  = dh * ir
-    const dx  = x + (w - dw) / 2
-    const dy  = cy - dh / 2
+    // shared contain-fit bounds — product, mask, and annotations all agree
+    const b = getImageBounds()
+    const key = `${b.dx.toFixed(1)}|${b.dy.toFixed(1)}|${b.dw.toFixed(1)}|${b.dh.toFixed(1)}`
+    if (boundsKeyRef.current !== key) {
+      boundsKeyRef.current = key
+      setImgBounds(b)
+    }
 
     // keep the KingAI mask locked to the rendered image bounds
-    positionMask(dx, dy, dw, dh)
+    positionMask(b.dx, b.dy, b.dw, b.dh)
 
     ctx.save()
     ctx.scale(dpr, dpr)
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = 'high'
-    ctx.drawImage(img, dx, dy, dw, dh)
+    ctx.drawImage(img, b.dx, b.dy, b.dw, b.dh)
     ctx.restore()
   }
 
@@ -210,7 +221,11 @@ export default function CinematicCanvas() {
             setShowLabels(p >= 0.50 && p <= 0.66)
             const ci = chapterAt(p)
             setChapIdx(ci)
-            scrollStore.set({ progress: p, frame: fi + 1, chapter: ci, ready: true })
+            scrollStore.set({ progress: p, frame: fi + 1, chapter: ci, ready: true, storyActive: self.isActive })
+          },
+          onToggle(self) {
+            // hide the cinematic HUD as soon as the pinned section leaves view
+            scrollStore.set({ storyActive: self.isActive })
           },
         },
       })
@@ -294,30 +309,38 @@ export default function CinematicCanvas() {
         <div ref={maskRef} className="kingai-mask" aria-hidden="true" />
 
         {/* ── Engineering SVG annotations (ENGINEERED chapter) ─────────────── */}
-        {showLabels && (
+        {showLabels && imgBounds && (
           <svg
+            className="xg-annotations"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}
             aria-hidden="true"
           >
-            {ENG_LABELS.map(l => (
-              <g key={l.text}>
-                <line
-                  x1={`${l.dotX}%`} y1={`${l.dotY}%`}
-                  x2={`${l.textX}%`} y2={`${l.textY}%`}
-                  stroke="rgba(57,211,83,0.4)" strokeWidth="1" strokeDasharray="2 4"
-                />
-                <circle cx={`${l.dotX}%`} cy={`${l.dotY}%`} r="3" fill="#39D353" />
-                <circle cx={`${l.dotX}%`} cy={`${l.dotY}%`} r="6" fill="none" stroke="rgba(57,211,83,0.25)" strokeWidth="1" />
-                <text
-                  x={`${l.textX}%`} y={`${l.textY}%`}
-                  textAnchor="middle" dominantBaseline="middle"
-                  fill="rgba(255,255,255,0.75)"
-                  style={{ fontSize: 9, fontFamily: 'var(--font-mono)', letterSpacing: '0.14em', textTransform: 'uppercase' }}
-                >
-                  {l.text}
-                </text>
-              </g>
-            ))}
+            {ENG_LABELS.map(l => {
+              // frame-normalized → viewport px via the rendered image bounds
+              const ax = imgBounds.dx + l.anchorX * imgBounds.dw
+              const ay = imgBounds.dy + l.anchorY * imgBounds.dh
+              const tx = imgBounds.dx + l.labelX   * imgBounds.dw
+              const ty = imgBounds.dy + l.labelY   * imgBounds.dh
+              return (
+                <g key={l.text}>
+                  <line
+                    x1={ax} y1={ay}
+                    x2={tx} y2={ty}
+                    stroke="rgba(57,211,83,0.4)" strokeWidth="1" strokeDasharray="2 4"
+                  />
+                  <circle cx={ax} cy={ay} r="3" fill="#39D353" />
+                  <circle cx={ax} cy={ay} r="6" fill="none" stroke="rgba(57,211,83,0.25)" strokeWidth="1" />
+                  <text
+                    x={tx} y={ty}
+                    textAnchor="start" dominantBaseline="middle"
+                    fill="rgba(255,255,255,0.75)"
+                    style={{ fontSize: 9, fontFamily: 'var(--font-mono)', letterSpacing: '0.14em', textTransform: 'uppercase' }}
+                  >
+                    {l.text}
+                  </text>
+                </g>
+              )
+            })}
           </svg>
         )}
 
@@ -396,31 +419,32 @@ export default function CinematicCanvas() {
           </div>
         )}
 
-        {/* ── Chapter 06 — final reveal (centered, bottom) ─────────────────── */}
+        {/* ── Chapter 06 — final reveal (centered) ─────────────────────────── */}
         {chapIdx === 5 && (
           <div
             className="xg-chapter-anim"
             style={{
-              position    : 'absolute',
-              bottom      : 'clamp(96px, 12vh, 128px)',
-              left        : 0,
-              right       : 0,
-              textAlign   : 'center',
+              position     : 'absolute',
+              top          : '50%',
+              left         : 0,
+              right        : 0,
+              transform    : 'translateY(-52%)',
+              textAlign    : 'center',
               pointerEvents: 'none',
-              padding     : '0 24px',
+              padding      : '0 24px',
             }}
           >
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.22em', color: 'var(--xg-green)', textTransform: 'uppercase', marginBottom: 24 }}>
-              Circular technology
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.24em', color: 'var(--xg-green)', textTransform: 'uppercase', marginBottom: 24 }}>
+              Circular Technology
             </p>
-            <h2 style={{ fontSize: 'clamp(2.4rem, 5vw, 4.6rem)', fontWeight: 800, letterSpacing: '-0.04em', color: '#fff', marginBottom: 16 }}>
+            <h2 style={{ fontSize: 'clamp(4rem, 8vw, 8rem)', fontWeight: 800, letterSpacing: '-0.05em', lineHeight: 0.95, color: '#fff', marginBottom: 24 }}>
               XGROVA
             </h2>
-            <p style={{ fontSize: 'clamp(0.9rem, 1.1vw, 1.05rem)', color: 'rgba(255,255,255,0.55)', marginBottom: 24 }}>
+            <p style={{ fontSize: 'clamp(1rem, 1.4vw, 1.25rem)', lineHeight: 1.6, color: 'rgba(255,255,255,0.62)', marginBottom: 32 }}>
               Circular technology for a more accessible future.
             </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase' }}>
-              Presented by <span style={{ color: '#fff', fontWeight: 600 }}>Sanjay S</span>
+            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
+              Presented by <span style={{ color: 'var(--xg-green)', fontWeight: 600 }}>Team XGROVA</span>
             </p>
           </div>
         )}

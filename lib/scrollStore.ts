@@ -11,6 +11,8 @@ export interface ScrollState {
   chapter: number
   /** GSAP pin engaged */
   ready: boolean
+  /** the pinned cinematic section is currently in view */
+  storyActive: boolean
 }
 
 let state: ScrollState = {
@@ -18,6 +20,7 @@ let state: ScrollState = {
   frame: 1,
   chapter: 0,
   ready: false,
+  storyActive: false,
 }
 
 const listeners = new Set<() => void>()

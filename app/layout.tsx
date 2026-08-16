@@ -19,8 +19,8 @@ export const metadata: Metadata = {
   title: 'XGROVA — Circular Computing',
   description:
     'XGROVA transforms discarded computing hardware into affordable devices through system-level upcycling and circular engineering.',
-  keywords: ['XGROVA', 'upcycled laptop', 'e-waste', 'circular tech', 'affordable computing', 'circular computing', 'Sanjay S'],
-  authors: [{ name: 'Sanjay S' }],
+  keywords: ['XGROVA', 'upcycled laptop', 'e-waste', 'circular tech', 'affordable computing', 'circular computing'],
+  authors: [{ name: 'XGROVA' }],
   icons: {
     icon: '/xgrova.png',
     shortcut: '/xgrova.png',

@@ -80,7 +80,7 @@ export default function FinalRevealSection() {
               }}
             >
               <p style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: '#fff', letterSpacing: '0.04em' }}>
-                <span style={{ color: '#39D353' }}>✓</span> Inquiry received. Sanjay and the XGROVA team will respond within 24 hours.
+                <span style={{ color: '#39D353' }}>✓</span> Inquiry received. The XGROVA team will respond within 24 hours.
               </p>
             </div>
           ) : (

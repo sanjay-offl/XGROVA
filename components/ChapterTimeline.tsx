@@ -6,10 +6,10 @@ import { jumpToChapter } from '@/lib/navigate'
 import { sound } from '@/lib/sound'
 
 export default function ChapterTimeline() {
-  const { chapter } = useScrollState()
+  const { chapter, storyActive } = useScrollState()
 
   return (
-    <nav className="xg-timeline" aria-label="Chapters">
+    <nav className={`xg-timeline${storyActive ? '' : ' xg-hud-hidden'}`} aria-label="Chapters">
       {CHAPTERS.map((c, i) => (
         <div key={c.num} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
           {i > 0 && <div className={`xg-timeline-connector${i <= chapter ? ' on' : ''}`} />}

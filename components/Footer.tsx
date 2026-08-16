@@ -63,7 +63,7 @@ export default function Footer() {
 
             <div className="xg-footer-end">
               <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.38)', textTransform: 'uppercase' }}>
-                Presented by Sanjay S
+                Presented by Team XGROVA
               </span>
               <button
                 onClick={() => go('story')}
