@@ -327,9 +327,6 @@ export default function ScrollytellingSection() {
             transition: 'opacity 250ms ease',
           }}
         >
-          <p style={{ fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.18em', color: 'var(--xg-green)', textTransform: 'uppercase', marginBottom: 32 }}>
-            Circular by design
-          </p>
           <h1
             style={{
               fontSize   : 'clamp(3.5rem, 5vw, 5.4rem)',

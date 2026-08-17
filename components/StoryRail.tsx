@@ -3,7 +3,6 @@
 import { useScrollState } from '@/lib/scrollStore'
 import { CHAPTERS, TOTAL } from '@/lib/chapters'
 import { Recycle } from 'lucide-react'
-import { smoothScrollToElement } from '@/lib/lenis'
 
 export default function StoryRail() {
   const { progress, frame, chapter, ready } = useScrollState()
@@ -13,39 +12,8 @@ export default function StoryRail() {
 
   return (
     <aside className="xg-rail" aria-label="System status">
-      {/* ── Logo area — actual brand asset ── */}
-      <a
-        className="xg-rail-logo"
-        href="#story"
-        onClick={e => {
-          e.preventDefault()
-          smoothScrollToElement(document.getElementById('story'), -70)
-        }}
-      >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/xgrova.png"
-          alt="XGROVA"
-          width={44}
-          height={44}
-          style={{ objectFit: 'contain' }}
-          draggable={false}
-        />
-        <span
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: 11,
-            fontWeight: 800,
-            letterSpacing: '0.08em',
-            color: 'var(--xg-white)',
-          }}
-        >
-          XGROVA
-        </span>
-      </a>
-
       {/* ── Cinematic technical status — lives inside the story section ── */}
-      <div className="xg-rail-cinematic">
+      <div className="xg-rail-cinematic" style={{ paddingTop: 'var(--xg-nav-height)' }}>
         <div className="xg-hud-block">
           <div className="xg-hud-label">Scroll</div>
           <div className="xg-hud-value">{pct}%</div>

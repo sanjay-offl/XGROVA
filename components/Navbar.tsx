@@ -74,6 +74,16 @@ export default function Navbar() {
             go('story')
           }}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/xgrova.png"
+            alt=""
+            aria-hidden="true"
+            width={28}
+            height={28}
+            style={{ objectFit: 'contain', flexShrink: 0 }}
+            draggable={false}
+          />
           XGROVA
           <span className="xg-nav-brand-mark">◉</span>
         </a>
