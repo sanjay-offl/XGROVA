@@ -37,7 +37,11 @@ export default function FutureReveal({ progress }: FutureRevealProps) {
       </p>
       <h2
         className="xg-future-title"
-        style={{ opacity: title.opacity, transform: `translateY(${title.y}px)` }}
+        style={{
+          opacity: title.opacity,
+          transform: `translateY(${title.y}px)`,
+          letterSpacing: `${-0.02 - 0.03 * title.opacity}em`,
+        }}
       >
         XGROVA
       </h2>

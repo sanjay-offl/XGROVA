@@ -44,7 +44,15 @@ export default function TargetMarketSection() {
                 <span className="xg-market-num">{m.num}</span>
                 <span className="xg-market-title">{m.title}</span>
                 <span className="xg-market-body">{m.body}</span>
-                <span className="xg-market-arrow">→</span>
+                <motion.span
+                  className="xg-market-arrow"
+                  initial={{ opacity: 0, x: -4 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.4, delay: i * 0.08 + 0.15, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  →
+                </motion.span>
               </a>
             </motion.div>
           ))}
