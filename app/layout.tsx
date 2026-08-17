@@ -16,6 +16,8 @@ const mono = IBM_Plex_Mono({
 })
 
 export const metadata: Metadata = {
+  // Replace with the production origin once deployed (drives OG/Twitter URLs)
+  metadataBase: new URL('http://localhost:3000'),
   title: 'XGROVA — Circular Computing',
   description:
     'XGROVA transforms discarded computing hardware into affordable devices through system-level upcycling and circular engineering.',

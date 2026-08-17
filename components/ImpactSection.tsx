@@ -40,8 +40,8 @@ const PILLARS = [
 
 export default function ImpactSection() {
   return (
-    <section id="impact" className="section-pad xg-shell" style={{ background: 'var(--xg-bg)' }}>
-      <div className="xg-col">
+    <section id="impact" className="section-pad" style={{ background: 'var(--xg-bg)' }}>
+      <div className="xg-container">
         <SectionHeader
           num="01"
           tag="Impact — Measurable Systemic Change"

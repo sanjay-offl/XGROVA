@@ -13,8 +13,8 @@ const MARKETS = [
 
 export default function TargetMarketSection() {
   return (
-    <section id="technology" className="section-pad xg-shell" style={{ background: 'var(--xg-bg)' }}>
-      <div className="xg-market-wrap">
+    <section id="technology" className="section-pad" style={{ background: 'var(--xg-bg)' }}>
+      <div className="xg-container">
         <SectionHeader
           num="02"
           tag="Target Market — Engineered for Access"

@@ -34,6 +34,15 @@
   --xg-rail-width:    128px;
   --xg-nav-height:    84px;
 
+  /* ── Layering (single z-index system) ── */
+  --z-page:        1;
+  --z-canvas:      10;
+  --z-mask:        20;
+  --z-annotations: 30;
+  --z-hud:         40;
+  --z-nav:         50;
+  --z-loading:     9999; /* boot overlay — intentionally above everything */
+
   /* ── Motion ── */
   --ease-cinema:      cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out:         cubic-bezier(0.22, 1, 0.36, 1);
@@ -141,7 +150,7 @@ body {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 .xg-eyebrow::before {
   content: '';
@@ -150,17 +159,19 @@ body {
   background: var(--xg-green);
   flex-shrink: 0;
 }
+.xg-eyebrow-center { justify-content: center; }
+.xg-eyebrow-center::before { display: none; }
 .xg-eyebrow-num {
   color: var(--xg-muted);
 }
 
 .xg-section-title {
-  font-size: clamp(2.2rem, 3.6vw, 3.6rem);
+  font-size: clamp(2.75rem, 5vw, 5rem);
   font-weight: 700;
-  letter-spacing: -0.035em;
-  line-height: 1.02;
+  letter-spacing: -0.045em;
+  line-height: 0.98;
   color: var(--xg-white);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 .xg-section-body {
   font-size: 17px;
@@ -169,8 +180,9 @@ body {
   max-width: 560px;
 }
 
+/* Vertical rhythm: eyebrow → 32px → heading → 28px → description → 72px → content */
 .xg-section-head {
-  margin-bottom: 96px;
+  margin-bottom: 72px;
   max-width: 720px;
 }
 
@@ -188,14 +200,11 @@ body {
   padding: clamp(96px, 14vh, 180px) 0;
 }
 
-/* Sections below the pinned canvas are offset by the left rail */
-.xg-shell {
-  padding-left: var(--xg-rail-width);
-}
-/* Content column aligned to the hero text rail */
-.xg-col {
-  padding-left: clamp(168px, 12.5vw, 230px);
-  padding-right: clamp(24px, 4vw, 64px);
+/* Editorial sections use their own centered grid — independent of the
+   cinematic sidebar. The story HUD never leaves the pinned section. */
+.xg-container {
+  width: min(1180px, calc(100% - 48px));
+  margin-inline: auto;
 }
 
 /* Absolute overlay column inside the pinned canvas */
@@ -204,8 +213,9 @@ body {
   top: 50%;
   transform: translateY(-50%);
   left: clamp(168px, 12.5vw, 230px);
-  max-width: 460px;
+  max-width: 500px;
   pointer-events: none;
+  z-index: 5;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -288,35 +298,80 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   CINEMATIC STORY SECTION — pinned by GSAP. Owns canvas, HUD, overlays.
+   Nothing inside is fixed to the viewport: the whole system scrolls
+   away with the section, so the editorial page stays clean below.
+═══════════════════════════════════════════════════════════════════ */
+
+.xg-story {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: visible;
+  background: #050505;
+}
+
+/* Canvas stage — canvas → KingAI mask → annotations, in that order */
+.canvas-stage {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-page);
+}
+.xg-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: #050505;
+  z-index: var(--z-canvas);
+}
+
+/* Hardware annotation layer — absolutely positioned over the stage */
+.xg-annotations {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: var(--z-annotations);
+}
+
+/* Cinematic HUD — absolute inside the pinned section (z 40, above overlays).
+   Decorative parts are pointer-transparent; interactive parts re-enable it. */
+.xg-hud {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-hud);
+  pointer-events: none;
+}
+.xg-hud .xg-rail,
+.xg-hud .xg-timeline {
+  pointer-events: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    LEFT HUD RAIL
 ═══════════════════════════════════════════════════════════════════ */
 
 .xg-rail {
-  position: fixed;
+  position: absolute;
   left: 0;
   top: 0;
+  bottom: 0;
   width: var(--xg-rail-width);
-  height: 100vh;
   background: var(--xg-bg);
   border-right: 1px solid var(--xg-border);
-  z-index: 130;
   display: flex;
   flex-direction: column;
   align-items: stretch;
 }
 
-/* Cinematic blocks inside the rail — fade out below the pinned section */
+/* Cinematic blocks inside the rail */
 .xg-rail-cinematic {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
-}
-.xg-rail-cinematic.xg-hud-hidden {
-  opacity: 0;
-  transform: translateX(-16px);
-  pointer-events: none;
 }
 
 .xg-rail-logo {
@@ -385,12 +440,12 @@ body {
 .xg-nav {
   position: fixed;
   top: 0;
-  left: var(--xg-rail-width);
+  left: 0;
   right: 0;
   height: var(--xg-nav-height);
   background: rgba(5,5,5,0.92);
   border-bottom: 1px solid var(--xg-border);
-  z-index: 200;
+  z-index: var(--z-nav);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -449,20 +504,13 @@ body {
 ═══════════════════════════════════════════════════════════════════ */
 
 .xg-timeline {
-  position: fixed;
-  right: 40px;
+  position: absolute;
+  right: clamp(24px, 3vw, 48px);
   top: 50%;
   transform: translateY(-50%);
-  z-index: 130;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
-}
-.xg-timeline.xg-hud-hidden {
-  opacity: 0;
-  transform: translateY(-50%) translateX(16px);
-  pointer-events: none;
 }
 .xg-timeline-item {
   display: flex;
@@ -530,18 +578,12 @@ body {
 ═══════════════════════════════════════════════════════════════════ */
 
 .xg-progress-hud {
-  position: fixed;
-  left: var(--xg-rail-width);
+  position: absolute;
+  left: 0;
   right: 0;
   bottom: 0;
   height: 48px;
-  z-index: 130;
   pointer-events: none;
-  transition: opacity 400ms var(--ease-out), transform 400ms var(--ease-out);
-}
-.xg-progress-hud.xg-hud-hidden {
-  opacity: 0;
-  transform: translateY(16px);
 }
 .xg-progress-track {
   position: absolute;
@@ -625,7 +667,7 @@ body {
   position: fixed;
   inset: 0;
   background: var(--xg-bg);
-  z-index: 9999;
+  z-index: var(--z-loading);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -660,7 +702,7 @@ body {
 
 .xg-metric-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   border-top: 1px solid var(--xg-border);
   border-bottom: 1px solid var(--xg-border);
 }
@@ -704,17 +746,9 @@ body {
    TARGET MARKET ROWS
 ═══════════════════════════════════════════════════════════════════ */
 
-/* Strict 1180px centered container for the target-market block */
-.xg-market-wrap {
-  width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 0 clamp(24px, 4vw, 64px);
-}
-
 .xg-market-row {
   display: grid;
-  grid-template-columns: 80px minmax(240px, 1fr) minmax(300px, 1.5fr) 50px;
+  grid-template-columns: 72px minmax(220px, 1fr) minmax(280px, 1.4fr) 48px;
   align-items: center;
   gap: 32px;
   padding: 40px 0;
@@ -1077,12 +1111,12 @@ body {
 
 /* ─── KingAI attribution mask — pure black, pointer-transparent, hidden until
        the first frame renders; position is driven imperatively to follow the
-       contain-fit image bounds (see ScrollytellingCanvas.positionMask) ─── */
+       contain-fit image bounds (see ScrollytellingSection.positionMask) ─── */
 .kingai-mask {
   position: absolute;
   background: #050505;
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--z-mask);
   display: none;
 }
 
@@ -1193,10 +1227,8 @@ input:focus-visible {
 
 @media (max-width: 1279px) {
   :root { --xg-rail-width: 96px; }
-  .xg-shell { padding-left: 96px; }
-  .xg-col { padding-left: clamp(120px, 9vw, 168px); padding-right: 32px; }
   .xg-col-overlay { left: clamp(120px, 9vw, 168px); }
-  .xg-metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .xg-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .xg-metric:nth-child(3) { border-left: none; }
   .xg-metric { border-top: 1px solid var(--xg-border); }
   .xg-metric:nth-child(-n+2) { border-top: none; }
@@ -1246,8 +1278,6 @@ input:focus-visible {
 @media (max-width: 767px) {
   :root { --xg-rail-width: 0px; --xg-nav-height: 64px; }
 
-  .xg-shell { padding-left: 0; }
-  .xg-col { padding-left: 24px; padding-right: 24px; }
   .xg-col-overlay {
     left: 24px;
     right: 24px;

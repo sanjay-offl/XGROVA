@@ -23,9 +23,8 @@ export default function Footer() {
         backgroundColor: 'var(--xg-bg)',
       }}
     >
-      <div className="xg-shell">
-        <div className="xg-col">
-          <div className="xg-footer-grid">
+      <div className="xg-container">
+        <div className="xg-footer-grid">
             <div>
               <span style={{ fontFamily: 'var(--font-sans)', fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', color: '#fff', display: 'block', marginBottom: 8 }}>
                 XGROVA
@@ -110,7 +109,6 @@ export default function Footer() {
               UPcycling E-WASTE · AFFORDABLE COMPUTING
             </span>
           </div>
-        </div>
       </div>
     </footer>
   )

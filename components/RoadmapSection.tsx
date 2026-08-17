@@ -12,8 +12,8 @@ const QUARTERS = [
 
 export default function RoadmapSection() {
   return (
-    <section className="section-pad xg-shell" style={{ background: 'var(--xg-bg)' }}>
-      <div className="xg-col">
+    <section className="section-pad" style={{ background: 'var(--xg-bg)' }}>
+      <div className="xg-container">
         <SectionHeader
           num="04"
           tag="Roadmap — Four Quarters"

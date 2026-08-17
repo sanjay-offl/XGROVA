@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
+import SectionEyebrow from './SectionEyebrow'
 
 interface SectionHeaderProps {
   num: string
@@ -10,6 +11,7 @@ interface SectionHeaderProps {
   body?: string
 }
 
+/** Section header — vertical rhythm: eyebrow → 32px → title → 28px → body → 72px → content */
 export default function SectionHeader({ num, tag, title, body }: SectionHeaderProps) {
   return (
     <motion.header
@@ -19,10 +21,7 @@ export default function SectionHeader({ num, tag, title, body }: SectionHeaderPr
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
     >
-      <p className="xg-eyebrow">
-        <span className="xg-eyebrow-num">{num}</span>
-        {tag}
-      </p>
+      <SectionEyebrow num={num} label={tag} />
       <h2 className="xg-section-title">{title}</h2>
       {body && <p className="xg-section-body">{body}</p>}
     </motion.header>

@@ -2,10 +2,7 @@
 
 import { useEffect } from 'react'
 import Navbar from '@/components/Navbar'
-import HudRail from '@/components/HudRail'
-import ChapterTimeline from '@/components/ChapterTimeline'
-import ProgressBar from '@/components/ProgressBar'
-import CinematicCanvas from '@/components/ScrollytellingCanvas'
+import ScrollytellingSection from '@/components/ScrollytellingSection'
 import ImpactSection from '@/components/ImpactSection'
 import TargetMarketSection from '@/components/TargetMarketSection'
 import InnovationSection from '@/components/InnovationSection'
@@ -21,16 +18,13 @@ export default function Home() {
 
   return (
     <main style={{ background: 'var(--xg-bg)' }}>
-      {/* ─── Persistent engineering frame ─── */}
-      <HudRail />
+      {/* ─── Global navigation — full width, above the story ─── */}
       <Navbar />
-      <ChapterTimeline />
-      <ProgressBar />
 
-      {/* ─── Cinematic canvas — 151 frames, GSAP pin, scrub ─── */}
-      <CinematicCanvas />
+      {/* ─── Cinematic story — pinned section owns canvas, HUD, annotations ─── */}
+      <ScrollytellingSection />
 
-      {/* ─── Editorial chapters below the scroll ─── */}
+      {/* ─── Editorial chapters — own centered 1180px grid ─── */}
       <ImpactSection />
       <TargetMarketSection />
       <InnovationSection />

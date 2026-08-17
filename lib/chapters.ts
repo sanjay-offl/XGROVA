@@ -34,24 +34,26 @@ export const CHAPTERS: Chapter[] = [
  *   BATTERY      dark pack band     y 674–805
  *   FRAME        bottom chassis     y 813–968
  */
+export type AnnotationPriority = 'primary' | 'secondary'
+
 export interface HardwareAnnotation {
+  id: string
   text: string
   /** dot position on the product — normalized to the source frame (0–1) */
   anchorX: number
   anchorY: number
-  /** label position — normalized to the source frame (may exceed 0–1) */
-  labelX: number
-  labelY: number
+  /** primary always shown; secondary dropped first when space is tight */
+  priority: AnnotationPriority
 }
 
 export const ENG_LABELS: HardwareAnnotation[] = [
-  { text: 'DISPLAY',      anchorX: 0.50,  anchorY: 0.163, labelX: 1.04, labelY: 0.12  },
-  { text: 'KEYBOARD',     anchorX: 0.50,  anchorY: 0.369, labelX: 1.04, labelY: 0.28  },
-  { text: 'MOTHERBOARD',  anchorX: 0.50,  anchorY: 0.476, labelX: 1.04, labelY: 0.44  },
-  { text: 'MEMORY',       anchorX: 0.754, anchorY: 0.504, labelX: 1.04, labelY: 0.52  },
-  { text: 'THERMAL SYS',  anchorX: 0.50,  anchorY: 0.591, labelX: 1.04, labelY: 0.60  },
-  { text: 'BATTERY',      anchorX: 0.50,  anchorY: 0.688, labelX: 1.04, labelY: 0.70  },
-  { text: 'FRAME',        anchorX: 0.50,  anchorY: 0.827, labelX: 1.04, labelY: 0.84  },
+  { id: 'display',      text: 'DISPLAY',      anchorX: 0.50,  anchorY: 0.163, priority: 'primary'   },
+  { id: 'keyboard',     text: 'KEYBOARD',     anchorX: 0.50,  anchorY: 0.369, priority: 'primary'   },
+  { id: 'motherboard',  text: 'MOTHERBOARD',  anchorX: 0.50,  anchorY: 0.476, priority: 'primary'   },
+  { id: 'memory',       text: 'MEMORY',       anchorX: 0.754, anchorY: 0.504, priority: 'secondary' },
+  { id: 'thermal',      text: 'THERMAL SYS',  anchorX: 0.50,  anchorY: 0.591, priority: 'primary'   },
+  { id: 'battery',      text: 'BATTERY',      anchorX: 0.50,  anchorY: 0.688, priority: 'secondary' },
+  { id: 'frame',        text: 'FRAME',        anchorX: 0.50,  anchorY: 0.827, priority: 'primary'   },
 ]
 
 export function chapterAt(progress: number): number {

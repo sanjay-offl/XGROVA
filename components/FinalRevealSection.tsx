@@ -4,32 +4,30 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { sound } from '@/lib/sound'
 import { smoothScrollToElement } from '@/lib/lenis'
+import SectionEyebrow from './SectionEyebrow'
 
 export default function FinalRevealSection() {
   const [done, setDone] = useState(false)
   const [email, setEmail] = useState('')
 
   return (
-    <section id="contact" className="section-pad xg-shell" style={{ background: 'var(--xg-bg)' }}>
-      <div className="xg-col" style={{ textAlign: 'center' }}>
+    <section id="contact" className="section-pad" style={{ background: 'var(--xg-bg)' }}>
+      <div className="xg-container" style={{ textAlign: 'center' }}>
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
         >
-          <p className="xg-eyebrow" style={{ justifyContent: 'center' }}>
-            <span className="xg-eyebrow-num">06</span>
-            Final Sequence — Circular Computing
-          </p>
+          <SectionEyebrow num="06" label="Final Sequence — Circular Computing" center />
           <h2
             style={{
-              fontSize   : 'clamp(3rem, 6vw, 5.8rem)',
+              fontSize   : 'clamp(2.75rem, 5vw, 5rem)',
               fontWeight : 800,
-              letterSpacing: '-0.04em',
+              letterSpacing: '-0.045em',
               lineHeight : 0.98,
               color      : '#fff',
-              marginBottom: 40,
+              marginBottom: 28,
             }}
           >
             Give technology
