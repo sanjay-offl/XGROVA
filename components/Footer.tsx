@@ -2,13 +2,7 @@
 
 import { sound } from '@/lib/sound'
 import { smoothScrollToElement } from '@/lib/lenis'
-
-const LINKS = [
-  { label: 'STORY', id: 'story' },
-  { label: 'TECHNOLOGY', id: 'technology' },
-  { label: 'IMPACT', id: 'impact' },
-  { label: 'CONTACT', id: 'contact' },
-]
+import { NAV_ITEMS } from '@/lib/nav'
 
 export default function Footer() {
   const go = (id: string) => {
@@ -35,13 +29,13 @@ export default function Footer() {
             </div>
 
             <nav style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
-              {LINKS.map(l => (
+              {NAV_ITEMS.map(l => (
                 <a
-                  key={l.label}
-                  href={`#${l.id}`}
+                  key={l.id}
+                  href={`#${l.target}`}
                   onClick={e => {
                     e.preventDefault()
-                    go(l.id)
+                    go(l.target)
                   }}
                   style={{
                     fontFamily: 'var(--font-mono)',

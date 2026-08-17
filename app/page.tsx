@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { MotionConfig } from 'framer-motion'
 import Navbar from '@/components/Navbar'
 import ScrollytellingSection from '@/components/ScrollytellingSection'
 import ImpactSection from '@/components/ImpactSection'
@@ -17,7 +18,8 @@ export default function Home() {
   }, [])
 
   return (
-    <main style={{ background: 'var(--xg-bg)' }}>
+    <MotionConfig reducedMotion="user">
+      <main style={{ background: 'var(--xg-bg)' }}>
       {/* ─── Global navigation — full width, above the story ─── */}
       <Navbar />
 
@@ -31,6 +33,7 @@ export default function Home() {
       <RoadmapSection />
       <FinalRevealSection />
       <Footer />
-    </main>
+      </main>
+    </MotionConfig>
   )
 }

@@ -7,6 +7,8 @@ import { getLenis, smoothScrollToElement } from '@/lib/lenis'
 import { sound } from '@/lib/sound'
 import EngineeringAnnotations from './EngineeringAnnotations'
 import CinematicHUD from './CinematicHUD'
+import ChapterCopy from './ChapterCopy'
+import FutureReveal from './FutureReveal'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Canvas draw region — cinematic grid:
@@ -70,6 +72,17 @@ export default function ScrollytellingSection() {
   const [labelOpacity,setLabelOpacity] = useState(0)
   const [imgBounds,   setImgBounds]   = useState<{ dx: number; dy: number; dw: number; dh: number } | null>(null)
   const boundsKeyRef  = useRef('')
+
+  // ── Chapter cross-fade — the outgoing chapter keeps rendering briefly ────
+  const [leavingChap, setLeavingChap] = useState<number | null>(null)
+  const chapRef = useRef(0)
+  useEffect(() => {
+    if (chapIdx === chapRef.current) return
+    setLeavingChap(chapRef.current)
+    chapRef.current = chapIdx
+    const t = setTimeout(() => setLeavingChap(null), 380)
+    return () => clearTimeout(t)
+  }, [chapIdx])
 
   // ── Canvas helpers ─────────────────────────────────────────────────────────
   function sizeCanvas() {
@@ -266,7 +279,7 @@ export default function ScrollytellingSection() {
         className={`loading-screen${isReady ? ' done' : ''}`}
         style={{ pointerEvents: isReady ? 'none' : 'auto' }}
       >
-        <p className="t-label" style={{ letterSpacing: '0.22em' }}>XGROVA BOOT SEQUENCE</p>
+        <p className="t-label" style={{ letterSpacing: '0.22em' }}>XGROVA SYSTEM</p>
         <p className="t-label" style={{ color: 'var(--xg-green)' }}>INITIALIZING HARDWARE SEQUENCE</p>
         <div style={{ width: 240, height: 1, background: 'rgba(255,255,255,0.08)', margin: '8px 0' }}>
           <div
@@ -351,66 +364,16 @@ export default function ScrollytellingSection() {
           </div>
         </div>
 
-        {/* ── Chapters 02–05: left editorial column ────────────────────────── */}
+        {/* ── Chapters 02–05: left editorial column (cross-fade) ──────────── */}
+        {leavingChap !== null && leavingChap >= 1 && leavingChap <= 4 && (
+          <ChapterCopy key={`leave-${leavingChap}`} chapter={CHAPTERS[leavingChap]} leaving />
+        )}
         {chapIdx >= 1 && chapIdx <= 4 && (
-          <div
-            key={chapIdx}
-            className="xg-col-overlay xg-chapter-anim"
-            style={{ maxWidth: 500 }}
-          >
-            <div style={{ width: 56, height: 1, background: 'var(--xg-green)', marginBottom: 24 }} />
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.18em', color: 'var(--xg-green)', textTransform: 'uppercase', marginBottom: 20 }}>
-              {chapter.num} · {chapter.label}
-            </p>
-            <h2
-              style={{
-                fontSize    : 'clamp(1.9rem, 3.2vw, 2.9rem)',
-                fontWeight  : 700,
-                letterSpacing: '-0.03em',
-                lineHeight  : 1.05,
-                color       : '#fff',
-                marginBottom: 20,
-                whiteSpace  : 'pre-line',
-              }}
-            >
-              {chapter.title}
-            </h2>
-            <p style={{ fontSize: 15.5, lineHeight: 1.75, color: 'rgba(255,255,255,0.6)' }}>
-              {chapter.body}
-            </p>
-          </div>
+          <ChapterCopy key={`enter-${chapIdx}`} chapter={chapter} />
         )}
 
-        {/* ── Chapter 06 — final reveal (single centered composition) ──────── */}
-        {chapIdx === 5 && (
-          <div
-            className="xg-chapter-anim"
-            style={{
-              position     : 'absolute',
-              top          : '50%',
-              left         : 0,
-              right        : 0,
-              transform    : 'translateY(-52%)',
-              textAlign    : 'center',
-              pointerEvents: 'none',
-              padding      : '0 24px',
-              zIndex       : 5,
-            }}
-          >
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.24em', color: 'var(--xg-green)', textTransform: 'uppercase', marginBottom: 24 }}>
-              Circular Technology
-            </p>
-            <h2 style={{ fontSize: 'clamp(4rem, 8vw, 8rem)', fontWeight: 800, letterSpacing: '-0.05em', lineHeight: 0.95, color: '#fff', marginBottom: 24 }}>
-              XGROVA
-            </h2>
-            <p style={{ fontSize: 'clamp(1rem, 1.4vw, 1.25rem)', lineHeight: 1.6, color: 'rgba(255,255,255,0.62)', marginBottom: 32 }}>
-              Circular technology for a more accessible future.
-            </p>
-            <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>
-              Presented by <span style={{ color: 'var(--xg-green)', fontWeight: 600 }}>Team XGROVA</span>
-            </p>
-          </div>
-        )}
+        {/* ── Chapter 06 — FUTURE: left editorial zone, laptop stays right ─── */}
+        {chapIdx === 5 && <FutureReveal progress={scrollProg} />}
       </div>
     </>
   )

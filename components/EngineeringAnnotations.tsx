@@ -89,20 +89,29 @@ export default function EngineeringAnnotations({ visible, opacity, rect }: Engin
         const ax = dx + l.anchorX * dw
         const ay = dy + l.anchorY * dh
         const ly = clamp(top + slotH * (i + 0.5), top, bottom)
+        const d = i * 0.18
         return (
-          <g key={l.id}>
+          <g key={l.id} className="xg-annotation">
             <line
               x1={ax} y1={ay}
               x2={labelX} y2={ly}
               stroke="rgba(57,211,83,0.4)" strokeWidth="1" strokeDasharray="2 4"
+              style={{ animationDelay: `${d + 0.08}s` }}
             />
-            <circle cx={ax} cy={ay} r="3" fill="#39D353" />
-            <circle cx={ax} cy={ay} r="6" fill="none" stroke="rgba(57,211,83,0.25)" strokeWidth="1" />
+            <circle
+              className="xg-annotation-dot"
+              cx={ax} cy={ay} r="3" fill="#39D353"
+              style={{ animationDelay: `${d}s` }}
+            />
+            <circle
+              cx={ax} cy={ay} r="6" fill="none" stroke="rgba(57,211,83,0.25)" strokeWidth="1"
+              style={{ animationDelay: `${d}s` }}
+            />
             <text
               x={labelX} y={ly}
               textAnchor="start" dominantBaseline="middle"
               fill="rgba(255,255,255,0.75)"
-              style={{ fontSize: 9, fontFamily: 'var(--font-mono)', letterSpacing: '0.14em', textTransform: 'uppercase' }}
+              style={{ fontSize: 9, fontFamily: 'var(--font-mono)', letterSpacing: '0.14em', textTransform: 'uppercase', animationDelay: `${d + 0.16}s` }}
             >
               {l.text}
             </text>

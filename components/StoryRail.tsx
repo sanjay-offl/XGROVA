@@ -8,7 +8,8 @@ import { smoothScrollToElement } from '@/lib/lenis'
 export default function StoryRail() {
   const { progress, frame, chapter, ready } = useScrollState()
   const ch = CHAPTERS[chapter]
-  const pct = (progress * 100).toFixed(1)
+  const raw = Math.min(100, Math.max(0, progress * 100))
+  const pct = raw >= 99.95 ? '100' : raw.toFixed(1)
 
   return (
     <aside className="xg-rail" aria-label="System status">

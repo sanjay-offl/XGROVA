@@ -12,6 +12,16 @@ class SoundEngine {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('ecoreboot_sound_enabled')
       this.enabled = saved === 'true'
+      // one-time gesture unlock — audio initializes only after user interaction
+      const unlock = () => {
+        window.removeEventListener('pointerdown', unlock)
+        window.removeEventListener('keydown', unlock)
+        this.enabled = true
+        try { localStorage.setItem('ecoreboot_sound_enabled', 'true') } catch { /* private mode */ }
+        this.initContext()
+      }
+      window.addEventListener('pointerdown', unlock, { passive: true })
+      window.addEventListener('keydown', unlock, { passive: true })
     }
   }
 

@@ -1,76 +1,134 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { smoothScrollToElement } from '@/lib/lenis'
+import { useEffect, useRef, useState } from 'react'
+import { NAV_ITEMS } from '@/lib/nav'
+import { getLenis, smoothScrollToElement } from '@/lib/lenis'
 import { sound } from '@/lib/sound'
 
-const LINKS = [
-  { label: 'STORY', id: 'story' },
-  { label: 'TECHNOLOGY', id: 'technology' },
-  { label: 'IMPACT', id: 'impact' },
-  { label: 'CONTACT', id: 'contact' },
-]
-
+/**
+ * Active-section detection — deterministic, works with the GSAP-pinned story:
+ * the last nav section whose top has crossed the viewport middle wins.
+ * During the pin the story element stays fixed at top:0, so STORY stays
+ * active for the whole cinematic sequence; afterwards the editorial sections
+ * take over as their tops cross the middle band.
+ */
 export default function Navbar() {
   const [active, setActive] = useState(0)
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
-    const fn = () => {
-      const els = LINKS.map(l => document.getElementById(l.id))
+    const compute = () => {
+      const vh = window.innerHeight || 1
       let idx = 0
-      els.forEach((el, i) => {
-        if (el && el.getBoundingClientRect().top <= 160) idx = i
-      })
+      for (let i = 0; i < NAV_ITEMS.length; i++) {
+        const el = document.getElementById(NAV_ITEMS[i].target)
+        if (el && el.getBoundingClientRect().top <= vh * 0.5) idx = i
+      }
       setActive(idx)
+      setScrolled(idx !== 0)
     }
-    fn()
-    window.addEventListener('scroll', fn, { passive: true })
-    window.addEventListener('resize', fn)
+    compute()
+    window.addEventListener('scroll', compute, { passive: true })
+    window.addEventListener('resize', compute)
     return () => {
-      window.removeEventListener('scroll', fn)
-      window.removeEventListener('resize', fn)
+      window.removeEventListener('scroll', compute)
+      window.removeEventListener('resize', compute)
     }
   }, [])
 
-  const go = (id: string) => {
+  // Lock page scroll while the mobile menu is open
+  useEffect(() => {
+    const lenis = getLenis()
+    if (menuOpen) lenis?.stop()
+    else lenis?.start()
+  }, [menuOpen])
+
+  const go = (target: string) => {
     sound.playSelect()
-    if (id === 'story') {
+    if (target === 'story') {
       smoothScrollToElement(document.getElementById('story'), -70)
     } else {
-      smoothScrollToElement(document.getElementById(id))
+      smoothScrollToElement(document.getElementById(target))
     }
   }
 
-  return (
-    <header className="xg-nav">
-      <a
-        className="xg-nav-brand"
-        href="#"
-        onClick={e => {
-          e.preventDefault()
-          sound.playSelect()
-          smoothScrollToElement(document.getElementById('story'), -70)
-        }}
-      >
-        XGROVA
-        <span className="xg-nav-brand-mark">◉</span>
-      </a>
+  const toggleMenu = () => {
+    sound.playSelect()
+    setMenuOpen(v => !v)
+  }
 
-      <nav className="xg-nav-links" aria-label="Primary">
-        {LINKS.map((l, i) => (
-          <a
-            key={l.label}
-            className={`xg-nav-link${active === i ? ' active' : ''}`}
-            href={`#${l.id}`}
-            onClick={e => {
-              e.preventDefault()
-              go(l.id)
-            }}
-          >
-            {l.label}
-          </a>
-        ))}
-      </nav>
-    </header>
+  const goMobile = (target: string) => {
+    setMenuOpen(false)
+    go(target)
+  }
+
+  return (
+    <>
+      <header className={`xg-nav${scrolled ? ' solid' : ''}`}>
+        <a
+          className="xg-nav-brand"
+          href="#"
+          onClick={e => {
+            e.preventDefault()
+            go('story')
+          }}
+        >
+          XGROVA
+          <span className="xg-nav-brand-mark">◉</span>
+        </a>
+
+        <nav className="xg-nav-links" aria-label="Primary">
+          {NAV_ITEMS.map((item, i) => (
+            <a
+              key={item.id}
+              className={`xg-nav-link${active === i ? ' active' : ''}`}
+              href={`#${item.target}`}
+              onMouseEnter={() => sound.playHoverHum()}
+              onClick={e => {
+                e.preventDefault()
+                go(item.target)
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        {/* Mobile menu toggle */}
+        <button
+          className="xg-nav-burger"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          onClick={toggleMenu}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+      </header>
+
+      {/* Mobile fullscreen navigation panel */}
+      <div className={`xg-nav-menu${menuOpen ? ' open' : ''}`} aria-hidden={!menuOpen}>
+        <nav aria-label="Mobile">
+          {NAV_ITEMS.map((item, i) => (
+            <a
+              key={item.id}
+              className={`xg-nav-menu-item${active === i ? ' active' : ''}`}
+              style={{ ['--i' as string]: i }}
+              href={`#${item.target}`}
+              onClick={e => {
+                e.preventDefault()
+                goMobile(item.target)
+              }}
+            >
+              <span className="xg-nav-menu-num">{String(i + 1).padStart(2, '0')}</span>
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <p className="xg-nav-menu-foot">XGROVA — CIRCULAR COMPUTING SYSTEM</p>
+      </div>
+    </>
   )
 }

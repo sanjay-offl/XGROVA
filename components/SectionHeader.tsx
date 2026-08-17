@@ -11,19 +11,39 @@ interface SectionHeaderProps {
   body?: string
 }
 
-/** Section header — vertical rhythm: eyebrow → 32px → title → 28px → body → 72px → content */
+const ease = [0.22, 1, 0.36, 1] as const
+
+/** Section header — vertical rhythm: eyebrow → 32px → title → 28px → body → 72px → content.
+ *  Staggered reveal: eyebrow 12px → heading 20px → body 16px. */
 export default function SectionHeader({ num, tag, title, body }: SectionHeaderProps) {
   return (
     <motion.header
       className="xg-section-head"
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial="hidden"
+      whileInView="show"
       viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      variants={{
+        hidden: {},
+        show: { transition: { staggerChildren: 0.08 } },
+      }}
     >
-      <SectionEyebrow num={num} label={tag} />
-      <h2 className="xg-section-title">{title}</h2>
-      {body && <p className="xg-section-body">{body}</p>}
+      <motion.div variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease } } }}>
+        <SectionEyebrow num={num} label={tag} />
+      </motion.div>
+      <motion.h2
+        className="xg-section-title"
+        variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } } }}
+      >
+        {title}
+      </motion.h2>
+      {body && (
+        <motion.p
+          className="xg-section-body"
+          variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.65, ease } } }}
+        >
+          {body}
+        </motion.p>
+      )}
     </motion.header>
   )
 }

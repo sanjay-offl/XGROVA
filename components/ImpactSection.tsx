@@ -49,15 +49,16 @@ export default function ImpactSection() {
           body="XGROVA operates at the intersection of environmental preservation and digital equity. By treating discarded hardware as functional raw assets, we create enduring planetary and human value."
         />
 
-        <motion.div
-          className="xg-metric-grid"
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {PILLARS.map(p => (
-            <div key={p.n} className="xg-metric">
+        <div className="xg-metric-grid">
+          {PILLARS.map((p, i) => (
+            <motion.div
+              key={p.n}
+              className="xg-metric"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.6, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+            >
               <p className="xg-eyebrow" style={{ marginBottom: 0 }}>
                 <span className="xg-eyebrow-num">{p.n}</span>
                 {p.label}
@@ -68,9 +69,9 @@ export default function ImpactSection() {
               </div>
               <p className="xg-metric-labels" style={{ whiteSpace: 'pre-line' }}>{p.sub}</p>
               <p className="xg-metric-body">{p.body}</p>
-            </div>
+            </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )
