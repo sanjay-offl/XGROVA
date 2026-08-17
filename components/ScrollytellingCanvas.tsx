@@ -14,8 +14,9 @@ function getRegion() {
   const W = window.innerWidth
   const H = window.innerHeight
   if (W >= 1280) {
-    // right half, x from 43% to 86% of viewport, vertically centered
-    return { x: W * 0.43, cy: (H + 84) / 2, w: W * 0.43, h: H * 0.92 }
+    // right half, x from 45% to 87% of viewport, vertically centered
+    // (hero text column occupies ~12–40%; product region 45–87%)
+    return { x: W * 0.45, cy: (H + 84) / 2, w: W * 0.42, h: H * 0.92 }
   }
   if (W >= 768) {
     return { x: W * 0.40, cy: (H + 84) / 2, w: W - W * 0.40 - 160, h: H * 0.92 }
@@ -61,6 +62,7 @@ export default function CinematicCanvas() {
   const [chapIdx,     setChapIdx]     = useState(0)
   const [scrollProg,  setScrollProg]  = useState(0)
   const [showLabels,  setShowLabels]  = useState(false)
+  const [labelOpacity,setLabelOpacity] = useState(0)
   const [imgBounds,   setImgBounds]   = useState<{ dx: number; dy: number; dw: number; dh: number } | null>(null)
   const boundsKeyRef  = useRef('')
 
@@ -218,7 +220,9 @@ export default function CinematicCanvas() {
             // update React UI state + shared HUD store
             setFrameNum(fi + 1)
             setScrollProg(p)
+            // annotations fade in as the exploded view settles into formation
             setShowLabels(p >= 0.50 && p <= 0.66)
+            setLabelOpacity(Math.max(0, Math.min(1, Math.min((p - 0.50) / 0.03, (0.66 - p) / 0.03))))
             const ci = chapterAt(p)
             setChapIdx(ci)
             scrollStore.set({ progress: p, frame: fi + 1, chapter: ci, ready: true, storyActive: self.isActive })
@@ -312,7 +316,7 @@ export default function CinematicCanvas() {
         {showLabels && imgBounds && (
           <svg
             className="xg-annotations"
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible', opacity: labelOpacity }}
             aria-hidden="true"
           >
             {ENG_LABELS.map(l => {

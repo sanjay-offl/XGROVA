@@ -20,7 +20,7 @@ let state: ScrollState = {
   frame: 1,
   chapter: 0,
   ready: false,
-  storyActive: false,
+  storyActive: true,
 }
 
 const listeners = new Set<() => void>()
